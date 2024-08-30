@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <title>AI Image Generator</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #121212 url('https://cdn.pixabay.com/photo/2023/08/11/18/06/ai-generated-8184109_1280.png') center/cover fixed;
+            color: #f0f0f0;
+        }
+
+        #container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: rgba(30, 30, 30, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        h1 {
+            color: white;
+            margin-bottom: 20px;
+            font-size: 2.5rem;
+        }
+
+        h2 {
+            color: #888;
+            font-size: 1.2rem;
+            font-weight: normal;
+            margin-top: 0;
+        }
+
+        form {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+            color: white;
+        }
+
+        input[type="text"] {
+            width: calc(100% - 100px);
+            padding: 10px;
+            border: 1px solid #555;
+            border-radius: 5px;
+            background: #222;
+            color: #f0f0f0;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        }
+
+        button[type="submit"] {
+            width: 100px;
+            padding: 10px;
+            background: #007bff;
+            color: #f0f0f0;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        button[type="submit"]:hover {
+            background: #0056b3;
+        }
+
+        #image-container {
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            position: relative;
+        }
+
+        .generated-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .download-link {
+            display: inline-block;
+            margin-top: 10px;
+            font-size: 14px;
+            color: #007bff;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .download-link:hover {
+            color: #0056b3;
+        }
+
+        .toggle-container {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .toggle-label {
+            margin-right: 10px;
+            color: #f0f0f0;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background: #007bff;
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+
+        .style-container {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .style-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .style-icon {
+            font-size: 2rem;
+            margin-bottom: 5px;
+            color: #007bff;
+        }
+
+        .style-label {
+            color: #f0f0f0;
+        }
+
+        .style-option.selected {
+            border-bottom: 2px solid #007bff;
+        }
+
+        .loader-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            border-radius: 10px;
+        }
+
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #007bff;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <h1>Photo Generator Using AI</h1>
+        <h2>Generate stunning images based on your prompts using advanced AI technology.</h2>
+        <form id="text-form">
+            <label for="text-input">Enter a prompt:</label>
+            <input type="text" id="text-input" name="text" placeholder="e.g., Capture the beauty of the winter season in a single scene.." required>
+            <button type="submit">Generate</button>
+        </form>
+        <div class="toggle-container">
+            <span class="toggle-label">Image Quality:</span>
+            <label class="toggle-switch">
+                <input type="checkbox" id="image-quality-toggle">
+                <span class="toggle-slider"></span>
+            </label>
+            <span class="toggle-label">HD</span>
+        </div>
+        <div class="style-container">
+            <div class="style-option" onclick="addStyleToPrompt('Abstract')">
+                <i class="fas fa-paint-brush style-icon"></i>
+                <span class="style-label">Abstract</span>
+            </div>
+            <div class="style-option" onclick="addStyleToPrompt('Artistic')">
+                <i class="fas fa-palette style-icon"></i>
+                <span class="style-label">Artistic</span>
+            </div>
+            <div class="style-option" onclick="addStyleToPrompt('Vintage')">
+                <i class="fas fa-camera-retro style-icon"></i>
+                <span class="style-label">Vintage</span>
+            </div>
+            <div class="style-option" onclick="addStyleToPrompt('Modern')">
+                <i class="fas fa-city style-icon"></i>
+                <span class="style-label">Modern</span>
+            </div>
+            <div class="style-option" onclick="addStyleToPrompt('Futuristic')">
+                <i class="fas fa-rocket style-icon"></i>
+                <span class="style-label">Futuristic</span>
+            </div>
+        </div>
+        <div id="image-container">
+            <div class="loader-overlay" id="loader">
+                <div class="loader"></div>
+            </div>
+            <img id="generated-image" class="generated-image" src="https://img.freepik.com/free-photo/digital-art-beautiful-mountains_23-2151123688.jpg" alt="Generated Image">
+        </div>
+        <a id="download-link" class="download-link" href="#" download="generated_image.jpg" style="display: none;"><i class="fas fa-download"></i> Download Image</a>
+    </div>
+
+    <script>
+        function addStyleToPrompt(style) {
+            var textInput = document.getElementById("text-input");
+            textInput.value += ` ${style}`;
+        }
+
+        document.getElementById("text-form").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            var prompt = document.getElementById("text-input").value.trim();
+            var apiKey = 'Your ClipDrop API Key Here'; 
+
+            const form = new FormData();
+            form.append('prompt', prompt);
+
+            // Show loader
+            var loader = document.getElementById("loader");
+            loader.style.display = "flex";
+
+            fetch('https://clipdrop-api.co/text-to-image/v1', {
+                method: 'POST',
+                headers: {
+                    'x-api-key': apiKey
+                },
+                body: form
+            })
+            .then(response => response.arrayBuffer())
+            .then(buffer => {
+                const blob = new Blob([buffer], { type: 'image/jpeg' }); 
+                const imageUrl = URL.createObjectURL(blob);
+
+                var generatedImage = document.getElementById("generated-image");
+                generatedImage.src = imageUrl;
+                generatedImage.style.display = "block";
+
+                var downloadLink = document.getElementById("download-link");
+                downloadLink.href = imageUrl;
+                downloadLink.style.display = "inline-block";
+
+                loader.style.display = "none";
+            })
+            .catch(error => {
+                console.error('Error fetching data from ClipDrop API:', error);
+                alert('Error fetching data from ClipDrop API. Please try again later.');
+                loader.style.display = "none";
+            });
+        });
+    </script>
+</body>
+</html>
