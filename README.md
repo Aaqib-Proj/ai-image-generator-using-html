@@ -9,3 +9,20 @@ Welcome to the **AI Image Generator**! This web application leverages advanced A
 - **Style Options**: Choose from various styles (Abstract, Artistic, Vintage, Modern, Futuristic) to enhance your image.
 - **Image Download**: Download the generated image to your device.
 - **Responsive Design**: Optimized for both desktop and mobile use.
+
+## API key
+
+- Go to ClipDrop.
+- Create an account or log in.
+- Access API Section
+
+- Navigate to the dashboard or account settings.
+- Find the "API Keys" or "Developer" section.
+Generate API Key
+
+- Click on "Generate Key" or similar.
+- Follow prompts to create a new API key.
+- Copy API Key
+
+- Copy the generated API key.
+- Paste it in the code where "YOUR CLIPDROP API KEY" is mentioned.
