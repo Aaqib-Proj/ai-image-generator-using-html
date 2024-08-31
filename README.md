@@ -21,8 +21,8 @@ Welcome to the **AI Image Generator**! This web application leverages advanced A
 Generate API Key
 
 - Click on "Generate Key" or similar.
-- Follow prompts to create a new API key.
-- Copy API Key
+
+
 
 - Copy the generated API key.
 - Paste it in the code where "YOUR CLIPDROP API KEY" is mentioned.
